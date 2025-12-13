@@ -1,0 +1,22 @@
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Python compiled files (Cache files)
+__pycache__/
+*.py[cod]
+
+# VS Code settings
+.vscode/
+
+# databases
+# Ideally only share code logic, not the actual database files.
+*.db
+*.sqlite3
+
+# OS generated files
+.DS_Store
+
+# Sensitive information (e.g., API keys or passwords)
+.env
