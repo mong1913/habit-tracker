@@ -56,6 +56,5 @@ streamlit run app.py
 - Day View: All records on the specific date are shown. <br>
 - Week View: All records in the specific week of the chosen date are displayed here. <br>
 - Month View: All records in the specific year and month are displayed in this tab. <br>
-<video width="480" height="360" controls>
-  <source src="Streamlit_demo.mov" type="video/mp4">
-</video>
+
+https://github.com/user-attachments/assets/ecd5dc93-b643-45f7-8e9e-fdfb67b1f750
