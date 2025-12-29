@@ -20,3 +20,6 @@ __pycache__/
 
 # Sensitive information (e.g., API keys or passwords)
 .env
+
+# video
+*.mov

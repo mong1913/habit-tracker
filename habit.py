@@ -1,11 +1,13 @@
 from analysis import Analysis
+from habit_tracker import Habit_Tracker
 
 class Habit:
 
-    def __init__(self, habit_name):
+    def __init__(self, db, habit_name):
         '''
-        When the object is initialize, load habit properties and log.
+        When the object is initialize, load habit properties and logs.
         '''
+        self.db = db
         self.id = None
         self.habit_name = None
         self.description = None
@@ -18,7 +20,10 @@ class Habit:
         self.load_habit_log(habit_name)
 
     def load_habit_properties(self, habit_name):
-        analysis = Analysis()
+        analysis = Analysis(self.db)
+        habit_tracker = Habit_Tracker(self.db)
+        
+        habit_tracker.update_streak(habit_name)
         habit_properties = analysis.get_habit_data("*", habit_name)
         if habit_properties:
             (self.id,
@@ -33,7 +38,5 @@ class Habit:
             return None
 
     def load_habit_log(self, habit_name):
-        analysis = Analysis()
+        analysis = Analysis(self.db)
         self.log = analysis.habit_log_from_tracker(habit_name)
-        if self.log is not None:
-            self.start_date = self.log[-1][0]

@@ -1,26 +1,27 @@
 from db import (get_data_from_myhabit_by_name, get_data_from_myhabit_by_period, get_distinct_value, get_data_from_tracker,
-                 weekly_habit_log, daily_and_monthly_habit_log, count_done_skip)
+                 weekly_habit_log, daily_and_monthly_habit_log)
+from habit_tracker import Habit_Tracker
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 class Analysis:
 
-    def __init__(self):
-        pass
+    def __init__(self, db):
+        self.db = db
 
     def get_habit_data(self, column, habit_name):
-        return get_data_from_myhabit_by_name(column, habit_name)
+        return get_data_from_myhabit_by_name(self.db, column, habit_name)
     
     def habit_list(self):
-        habit_list = get_distinct_value("habit_name", "myhabit")
+        habit_list = get_distinct_value(self.db, "habit_name", "myhabit")
         return habit_list if habit_list else []
 
     def habit_list_by_frequency(self, period):
-        habit_by_frequency = get_data_from_myhabit_by_period("habit_name", period)
+        habit_by_frequency = get_data_from_myhabit_by_period(self.db, "habit_name", period)
         return habit_by_frequency if habit_by_frequency else []
 
     def habit_log_from_tracker(self, habit_name):
-        return get_data_from_tracker("date, status", habit_name)
+        return get_data_from_tracker(self.db, "date, status", habit_name)
 
     def habit_data_in_selected_period(self, selected_time, weekly=False):
         '''
@@ -33,10 +34,11 @@ class Analysis:
             - For monthly log: a list of tuple(date, habit_name, status) in the specific month.
         '''
         if weekly == True:
-            results, columns = weekly_habit_log(selected_time)
+            results, columns = weekly_habit_log(self.db, selected_time)
+            
         else:
             converted_time = str(selected_time).replace("/", "-")
-            results, columns = daily_and_monthly_habit_log(converted_time)
+            results, columns = daily_and_monthly_habit_log(self.db, converted_time)
 
         if results:
             final_result = [[item][0] for item in results]
@@ -62,10 +64,11 @@ class Analysis:
             float: success count devided by total count.
             0.0 if habit data not found or the start date is later than today.
         '''
-        habit_data = get_data_from_myhabit_by_name("frequency, start_date", habit_name)
+        habit_data = get_data_from_myhabit_by_name(self.db, "frequency, start_date", habit_name)
         if habit_data is None:
             return 0
         
+        habit_tracker = Habit_Tracker(self.db)
         frequency, start_date = habit_data
         times = int(frequency.split()[0])
         period = frequency.split()[3]
@@ -78,28 +81,26 @@ class Analysis:
 
         try:
             if period == "day":
-                habit_log = count_done_skip(habit_name, 'date_only')
+                habit_log = habit_tracker.completion_count(habit_name, period)
                 total_count = (today - start_date).days + 1
-                success_count = sum(1 for row in habit_log if row[3] >= times) 
-                
+                success_count = sum(1 for row in habit_log if row[1] >= times) 
+
             elif period == "week":
-                habit_log = count_done_skip(habit_name, 'year_week')
-                start_of_this_week = today - timedelta(today.weekday() - 1)
-                start_of_target_week = start_date - timedelta(start_date.weekday() - 1)
+                habit_log = habit_tracker.completion_count(habit_name, period)
+                start_of_this_week = today - timedelta(today.weekday())
+                start_of_target_week = start_date - timedelta(start_date.weekday())
                 total_count = (start_of_this_week - start_of_target_week).days / 7 + 1
-                success_count = sum(1 for row in habit_log if row[3] >= times)
+                success_count = sum(1 for row in habit_log if row[1] >= times)
 
             elif period == "month":
-                habit_log = count_done_skip(habit_name, 'year_month')
+                habit_log = habit_tracker.completion_count(habit_name, period)
                 delta = relativedelta(today, start_date)
                 total_count = delta.years * 12 + delta.months + 1
-                success_count = sum(1 for row in habit_log if row[3] >= times)
+                success_count = sum(1 for row in habit_log if row[1] >= times)
 
-            success_rate = round(success_count / total_count, 2)
+            success_rate = round(success_count / total_count, 4)
             return success_rate 
         
         except:
             return 0
         
-
- 

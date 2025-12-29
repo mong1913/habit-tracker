@@ -6,21 +6,28 @@ from habit import Habit
 from datetime import timedelta, datetime
 import sqlite3
 import pandas as pd
+import os, shutil
+
+user_db = "habit_tracker.db"
+demo_predefined_db = "demo.db"
+demo_working_db = "demo_working.db"
 
 create_tables()
-
-tracker = Habit_Tracker()
-analysis = Analysis()
-now = datetime.now()
-today = datetime.today()
 
 # Initialize
 if "page" not in st.session_state:
     st.session_state.page = "Home"
 
+if "db_file" not in st.session_state:
+    st.session_state.db_file = user_db
+
 # Sidebar menu
 with st.sidebar:
     st.title("**Habit Tracker!**")
+    if st.session_state.db_file == "demo_working.db":
+        st.warning("You are currently in Demo Mode. " \
+                    "Changes will not be saved to your personal tracker. " \
+                    "Feel free to delete or edit.")
     st.header("Menu")
 
     if st.button("Home"):
@@ -32,6 +39,26 @@ with st.sidebar:
     if st.button("Analysis"):
         st.session_state.page = "Analysis"
 
+    st.write("---")
+    st.header("App Mode")
+    if st.button("My Habit"):
+        st.session_state.db_file = user_db
+        # tracker.set_db(user_db)
+        # analysis.set_db(user_db)
+        st.rerun()
+    if st.button("Fresh Demo"):
+        if os.path.exists(demo_predefined_db):
+            shutil.copy(demo_predefined_db, demo_working_db)
+            st.session_state.db_file = demo_working_db
+            st.rerun()
+        else:
+            st.error("Demo database not found!")
+    
+    tracker = Habit_Tracker(st.session_state.db_file)
+    analysis = Analysis(st.session_state.db_file)
+    now = datetime.now()
+    today = datetime.today()
+
 page = st.session_state.page
 myhabits = analysis.habit_list() 
 
@@ -39,8 +66,12 @@ if page == "Home":
     st.header("Welcome to Habit Tracker", divider="gray")
     st.text("")
     st.text("")
-    st.markdown("Currently you have the following habits:")
-    st.write(f"{myhabits}")
+    st.markdown("#### **Currently you have the following habits:**")
+    if len(myhabits) == 0:
+        st.write("No habits yet. Go to 'Add Habit' to start your first habit!")
+    else:
+        habits = ', '.join(myhabits)
+        st.write(f"{habits}")
     st.text("")
     st.write("Go to side bar for the next actions! Have Fun :)")
 
@@ -138,29 +169,44 @@ elif page == "Analysis":
     # Show details of the specific habit
     with tab2:
         #st.write("Current habits:", myhabits)
+        if 'habit_visible' not in st.session_state:
+            st.session_state.habit_visible = True   
 
         selected_habit = st.selectbox("Habit: ", myhabits)
-        st.subheader(selected_habit)
-              
-        if st.button("Delete Habit"):
-            if selected_habit is not None:
-                tracker.delete_habit(selected_habit)
-            st.warning(f"Successfully deleted habit {selected_habit}!")
-        
-        habit = Habit(selected_habit)  
-        success_rate = analysis.calculate_successrate(selected_habit)
-        if habit is not None and success_rate is not None: 
-            st.write(f"Description: {habit.description}")
-            st.write(f"Start date: {habit.start_date}")
-            st.write(f"Frequency: {habit.frequency}")
-            st.write(f"Longest streak: {habit.longest_streak}")
-            st.write(f"Current streak: {habit.current_streak}")
-            st.write(f"Success rate: {success_rate * 100:.2f}%")
-            df = pd.DataFrame(habit.log, columns=["Date", "Status"])
-            st.dataframe(df)          
-        else:
-            st.warning("No data.")  
 
+        col1, col2 = st.columns([3, 1])
+        
+        st.session_state.habit_visible = True   
+        if st.session_state.habit_visible:
+
+            with col1:
+                st.subheader(selected_habit)
+
+                habit = Habit(st.session_state.db_file, selected_habit)
+                habit_name = habit.habit_name
+                if habit_name is not None: # and success_rate is not None: 
+                    success_rate = analysis.calculate_successrate(selected_habit)
+                    st.write(f"Description: {habit.description}")
+                    st.write(f"Start date: {habit.start_date}")
+                    st.write(f"Frequency: {habit.frequency}")
+                    st.write(f"Longest streak: {habit.longest_streak}")
+                    st.write(f"Current streak: {habit.current_streak}")
+                    st.write(f"Success rate: {success_rate * 100:.2f}%")
+                    df = pd.DataFrame(habit.log, columns=["Date", "Status"])
+                    st.dataframe(df)          
+                else:
+                    st.warning("No data.")  
+
+            with col2:      
+                with st.popover("Delete this habit"):
+                    st.warning("Are you sure to delete this habit and all its records?")
+                    if st.button("Yes, delete the habit"):
+                        if selected_habit is not None:
+                            tracker.delete_habit(selected_habit)
+                        #st.success(f"Successfully deleted habit {selected_habit}!")
+                        st.session_state.habit_visible = False
+                        st.rerun()
+                    
     # Daily View: data in the specific date
     with tab3:
         selected_date = st.date_input("Date", "today")
