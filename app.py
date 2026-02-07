@@ -10,7 +10,7 @@ import os, shutil
 
 user_db = "habit_tracker.db"
 demo_predefined_db = "demo.db"
-demo_working_db = "demo_working.db"
+demo_working_db = "demo_working.db" # copy of demo_predefined_db for user to interact with
 
 create_tables()
 

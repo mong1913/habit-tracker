@@ -1,5 +1,5 @@
-from db import (get_data_from_myhabit_by_name, get_data_from_myhabit_by_period, get_distinct_value, get_data_from_tracker,
-                 weekly_habit_log, daily_and_monthly_habit_log)
+from db import (get_data_from_myhabit_by_name, get_data_from_myhabit_by_period, get_distinct_value, 
+                get_data_from_tracker, weekly_habit_log, daily_and_monthly_habit_log)
 from habit_tracker import Habit_Tracker
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
@@ -25,9 +25,11 @@ class Analysis:
 
     def habit_data_in_selected_period(self, selected_time, weekly=False):
         '''
+        Returns the habit log in the selected period. The period can be day, week or month.
+
         Args:
             selected_time: date
-            weekly true for getting weekly log. Assign False to weekly parameter for getting daily or monthly log.
+            weekly: true for getting weekly log. Assign False to the parameter for getting daily or monthly log.
         Returns:
             - For weekly log: a list of tuple(date, year_week, habit_name, status) in the specific week.
             - For daily log: a list of tuple(date, habit_name, status) on the specific date.
@@ -59,10 +61,11 @@ class Analysis:
             - get frequency(e.g. 3 time(s) per day) and start date.
             - count days that reached target as success count.
             - count days since start date as total count.
+            - calculate success rate by dividing success count by total count.
 
         Returns:
             float: success count devided by total count.
-            0.0 if habit data not found or the start date is later than today.
+                    0.0 if habit data not found or the start date is later than today.
         '''
         habit_data = get_data_from_myhabit_by_name(self.db, "frequency, start_date", habit_name)
         if habit_data is None:

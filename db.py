@@ -16,8 +16,7 @@ def get_cursor(db="habit_tracker.db"):
 
 def create_tables():
     '''
-    Creates habit(myhabit) and tracker table.        
-    Status in tracker takes 3 values: "Done!", "Skip.", "Missed."
+    Creates a habit(myhabit) table and a tracker table.
     '''
     with get_cursor() as cur:
         
@@ -90,7 +89,7 @@ def insert_tracker(db, habit_name, date, status):
         cur.connection.commit()
 
 def delete_value(db, habit_name, table):
-    with get_cursor(db, ) as cur:
+    with get_cursor(db) as cur:
         cur.execute("PRAGMA foreign_keys = ON")
         habit_id = get_habit_id(db, habit_name)
 
@@ -108,10 +107,12 @@ def update_myhabit(db, habit_name, column, value):
 
 def daily_and_monthly_habit_log(db, time):
     '''
+    Returns habit log on the specific date or in the specific month. 
+
     Args:
-        time: date
+        time: date of interest in "YYYY-MM-DD" format.
     Returns:
-        list: a list of tuple(date, habit name, status). Tuples are records from tracker table on the specific date or in the specific month.
+        list: a list of tuple(date, habit name, status). Tuples are records from the tracker table on the specific date or in the specific month.
     '''
     with get_cursor(db) as cur:
         cur.execute(''' 
@@ -128,10 +129,12 @@ def daily_and_monthly_habit_log(db, time):
 
 def weekly_habit_log(db, time):
     '''
+    Returns habit log in the specific week.
+
     Args:
-        time: date
+        time: date of interest in "YYYY-MM-DD" format. The week of the date will be used to filter records.
     Returns:
-        list: a list of tuple(date, year week, habit name, status). Tuples are records from tracker table in the specific week.
+        list: a list of tuple(date, year week, habit name, status). Tuples are records from the tracker table in the specific week.
     '''
     week = time.strftime("%Y-W%W")
     with get_cursor(db) as cur:

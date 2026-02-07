@@ -10,17 +10,23 @@ class Habit_Tracker:
         self.db = db
     
     def add_habit(self, habit_name, description, frequency, start_date):
+        '''
+        Adds a new habit into the myhabit table.
+        '''
         try:
             insert_myhabit(self.db, habit_name, description, frequency, start_date, 0, 0)
         except sqlite3.IntegrityError as err:
             raise err
 
     def delete_habit(self, habit_name):
+        '''
+        Deletes a habit from both myhabit and tracker tables.
+        '''
         delete_value(self.db, habit_name, "myhabit")
 
     def completion_count(self, habit_name, period):
         '''
-        Counts the records with the status of done and skip as completion.
+        Counts the records with the status of done and skip.
         '''
         date_status = get_data_from_tracker(self.db, "date, status", habit_name)
         completion_mark = ('Done!', 'Skip.')
@@ -136,7 +142,7 @@ class Habit_Tracker:
 
     def update_streak(self, habit_name):
         '''
-        Gets current and maximum streak count by calling completion_count and streak_count funcitons.
+        Gets current and maximum streak count and then updates the values in myhabit table.
         '''
 
         frequency = get_data_from_myhabit_by_name(self.db, "frequency", habit_name)
@@ -160,8 +166,8 @@ class Habit_Tracker:
 
     def checkoff(self, habit_name, date, status):
         '''
-        Calls the function from db module to insert the activity into the tracker table.
-        Then, call the function in the habit-tracker class to update the new current and max streak count in the habit table.
+        Calls the function from db module to insert a new activity into the tracker table.
+        Then, calls the function in Habit_Tracker class to update the new current and max streak count in the habit table.
         '''
         insert_tracker(self.db, habit_name, date, status)
         self.update_streak(habit_name)

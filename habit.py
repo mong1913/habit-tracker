@@ -5,7 +5,7 @@ class Habit:
 
     def __init__(self, db, habit_name):
         '''
-        When the object is initialize, load habit properties and logs.
+        When the object is initialized, load habit properties and its event log.
         '''
         self.db = db
         self.id = None
@@ -20,6 +20,9 @@ class Habit:
         self.load_habit_log(habit_name)
 
     def load_habit_properties(self, habit_name):
+        '''
+        Updates streak count in myhabit table, then gets habit properties and loads to the object attributes.
+        '''
         analysis = Analysis(self.db)
         habit_tracker = Habit_Tracker(self.db)
         
@@ -38,5 +41,8 @@ class Habit:
             return None
 
     def load_habit_log(self, habit_name):
+        '''
+        Loads the habit log from tracker table to the object attribute.
+        '''
         analysis = Analysis(self.db)
         self.log = analysis.habit_log_from_tracker(habit_name)
