@@ -63,6 +63,16 @@ def test_fill_history(sut, monkeypatch):
 
     assert log_list == [(date(2025, 1, 4), 2), (date(2025, 1, 5), 1), (date(2025, 1, 6), 0), (date(2025, 1, 7), 0)]
 
+def test_fill_history_year_transition(sut, monkeypatch):
+
+    habit_log = [("2024-12-30", 2), ("2025-01-05", 1)]
+
+    monkeypatch.setattr(habit_tracker, "date", Fakedate)
+    log_list = sut.fill_history(habit_log, "day")
+
+    assert log_list == [(date(2024, 12, 30), 2), (date(2024, 12, 31), 0), (date(2025, 1, 1), 0), (date(2025, 1, 2), 0), (date(2025, 1, 3), 0), 
+                        (date(2025, 1, 4), 0), (date(2025, 1, 5), 1), (date(2025, 1, 6), 0), (date(2025, 1, 7), 0)]
+
 def test_streak_count_day(sut, monkeypatch):
 
     def fake_fill_history(db, habit_log, period):
