@@ -1,30 +1,38 @@
-from db import (get_data_from_myhabit_by_name, get_data_from_myhabit_by_period, get_distinct_value, 
-                get_data_from_tracker, weekly_habit_log, daily_and_monthly_habit_log)
+from db import (
+    get_data_from_myhabit_by_name,
+    get_data_from_myhabit_by_period,
+    get_distinct_value,
+    get_data_from_tracker,
+    weekly_habit_log,
+    daily_and_monthly_habit_log,
+)
 from habit_tracker import Habit_Tracker
 from datetime import date, datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
-class Analysis:
 
+class Analysis:
     def __init__(self, db):
         self.db = db
 
     def get_habit_data(self, column, habit_name):
         return get_data_from_myhabit_by_name(self.db, column, habit_name)
-    
+
     def habit_list(self):
         habit_list = get_distinct_value(self.db, "habit_name", "myhabit")
         return habit_list if habit_list else []
 
     def habit_list_by_frequency(self, period):
-        habit_by_frequency = get_data_from_myhabit_by_period(self.db, "habit_name", period)
+        habit_by_frequency = get_data_from_myhabit_by_period(
+            self.db, "habit_name", period
+        )
         return habit_by_frequency if habit_by_frequency else []
 
     def habit_log_from_tracker(self, habit_name):
         return get_data_from_tracker(self.db, "date, status", habit_name)
 
     def habit_data_in_selected_period(self, selected_time, weekly=False):
-        '''
+        """
         Returns the habit log in the selected period. The period can be day, week or month.
 
         Args:
@@ -34,10 +42,10 @@ class Analysis:
             - For weekly log: a list of tuple(date, year_week, habit_name, status) in the specific week.
             - For daily log: a list of tuple(date, habit_name, status) on the specific date.
             - For monthly log: a list of tuple(date, habit_name, status) in the specific month.
-        '''
-        if weekly == True:
+        """
+        if weekly:
             results, columns = weekly_habit_log(self.db, selected_time)
-            
+
         else:
             converted_time = str(selected_time).replace("/", "-")
             results, columns = daily_and_monthly_habit_log(self.db, converted_time)
@@ -52,9 +60,9 @@ class Analysis:
             column_name.append(columns[i])
 
         return final_result, column_name
-    
+
     def calculate_successrate(self, habit_name):
-        '''
+        """
         Calculates the completion(Done and Skip) rate (0.0-1.0).
 
         Logic(example for day period):
@@ -66,11 +74,13 @@ class Analysis:
         Returns:
             float: success count devided by total count.
                     0.0 if habit data not found or the start date is later than today.
-        '''
-        habit_data = get_data_from_myhabit_by_name(self.db, "frequency, start_date", habit_name)
+        """
+        habit_data = get_data_from_myhabit_by_name(
+            self.db, "frequency, start_date", habit_name
+        )
         if habit_data is None:
             return 0
-        
+
         habit_tracker = Habit_Tracker(self.db)
         frequency, start_date = habit_data
         times = int(frequency.split()[0])
@@ -86,7 +96,7 @@ class Analysis:
             if period == "day":
                 habit_log = habit_tracker.completion_count(habit_name, period)
                 total_count = (today - start_date).days + 1
-                success_count = sum(1 for row in habit_log if row[1] >= times) 
+                success_count = sum(1 for row in habit_log if row[1] >= times)
 
             elif period == "week":
                 habit_log = habit_tracker.completion_count(habit_name, period)
@@ -102,8 +112,7 @@ class Analysis:
                 success_count = sum(1 for row in habit_log if row[1] >= times)
 
             success_rate = round(success_count / total_count, 4)
-            return success_rate 
-        
-        except:
+            return success_rate
+
+        except Exception:
             return 0
-        
