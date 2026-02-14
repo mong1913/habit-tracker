@@ -12,7 +12,7 @@ import shutil
 user_db = "habit_tracker.db"
 demo_predefined_db = "demo.db"
 demo_working_db = (
-    "demo_working.db"  # copy of demo_predefined_db for user to interact with
+    "demo_working.db"  # copy of demo_predefined_db for users to interact with
 )
 
 create_tables()
@@ -48,8 +48,6 @@ with st.sidebar:
     st.header("App Mode")
     if st.button("My Habit"):
         st.session_state.db_file = user_db
-        # tracker.set_db(user_db)
-        # analysis.set_db(user_db)
         st.rerun()
     if st.button("Fresh Demo"):
         if os.path.exists(demo_predefined_db):
@@ -67,6 +65,8 @@ with st.sidebar:
 page = st.session_state.page
 myhabits = analysis.habit_list()
 
+# Display content based on the selected page
+# Home page
 if page == "Home":
     st.header("Welcome to Habit Tracker", divider="gray")
     st.text("")
@@ -78,8 +78,9 @@ if page == "Home":
         habits = ", ".join(myhabits)
         st.write(f"{habits}")
     st.text("")
-    st.write("Go to side bar for the next actions! Have Fun :)")
+    st.write("Go to sidebar for the next actions! Have Fun :)")
 
+# Add habit page
 elif page == "Add_habit":
     st.header("Start a New Habit")
     new_habit_name = st.text_input("New habit: ")
@@ -101,6 +102,7 @@ elif page == "Add_habit":
         except sqlite3.IntegrityError:
             st.warning(f"{new_habit_name} already exists in my habit list!")
 
+# Check-off page
 elif page == "Checkoff":
     st.header("Habit Check Off")
 
@@ -150,6 +152,7 @@ elif page == "Checkoff":
             f"New status submitted: **{habit_to_checkoff}** at **{time}**: {check_off_status}"
         )
 
+# Analysis page
 elif page == "Analysis":
     st.header("Habit Report")
     tab1, tab2, tab3, tab4, tab5 = st.tabs(
@@ -158,27 +161,51 @@ elif page == "Analysis":
 
     # Overview
     with tab1:
-        selected_habit = st.selectbox(
+        selected_habit_period = st.selectbox(
             "Choose periodicity",
             ["All habits", "Daily habits", "Weekly habits", "Monthly habits"],
         )
-        if selected_habit == "All habits":
-            if myhabits is not None:
-                st.write(", ".join(myhabits))
-        elif selected_habit == "Daily habits":
-            daily_habits = analysis.habit_list_by_frequency("day")
-            if daily_habits is not None:
-                st.write(", ".join(daily_habits))
-        elif selected_habit == "Weekly habits":
-            weekly_habits = analysis.habit_list_by_frequency("week")
-            if weekly_habits is not None:
-                st.write(", ".join(weekly_habits))
-        elif selected_habit == "Monthly habits":
-            monthly_habits = analysis.habit_list_by_frequency("month")
-            if monthly_habits is not None:
-                st.write(", ".join(monthly_habits))
+        if selected_habit_period == "All habits":
+            habits_list_frequency = myhabits
+            if habits_list_frequency is not None:
+                st.write(", ".join(habits_list_frequency))
+        elif selected_habit_period == "Daily habits":
+            habits_list_frequency = analysis.habit_list_by_frequency("day")
+            if habits_list_frequency is not None:
+                st.write(", ".join(habits_list_frequency))
+        elif selected_habit_period == "Weekly habits":
+            habits_list_frequency = analysis.habit_list_by_frequency("week")
+            if habits_list_frequency is not None:
+                st.write(", ".join(habits_list_frequency))
+        elif selected_habit_period == "Monthly habits":
+            habits_list_frequency = analysis.habit_list_by_frequency("month")
+            if habits_list_frequency is not None:
+                st.write(", ".join(habits_list_frequency))
+        st.write("---")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Success Rate Ranking")
+            success_rate_list = []
+            for habit in habits_list_frequency:
+                success_rate = analysis.calculate_successrate(habit)
+                success_rate_list.append((habit, success_rate))
+            success_rate_list.sort(key=lambda x: x[1], reverse=True)
+            for habit, success_rate in success_rate_list:
+                st.write(f"{habit}: {success_rate * 100:.2f}%")
 
-    # Show details of the specific habit
+        with col2:
+            st.subheader("Longest Streak Ranking")
+            maximum_streak_list = []
+            for item in habits_list_frequency:
+                habit = Habit(st.session_state.db_file, item)
+                maximum_streak = habit.longest_streak
+                maximum_streak_list.append((habit.habit_name, maximum_streak))
+            maximum_streak_list.sort(key=lambda x: x[1], reverse=True)
+            for habit, maximum_streak in maximum_streak_list:
+                st.write(f"{habit}: {maximum_streak}")
+
+    # Show details of a specific habit
     with tab2:
         # st.write("Current habits:", myhabits)
         if "habit_visible" not in st.session_state:
@@ -218,7 +245,7 @@ elif page == "Analysis":
                         st.session_state.habit_visible = False
                         st.rerun()
 
-    # Daily View: data in the specific date
+    # Daily View: data on a specific date
     with tab3:
         selected_date = st.date_input("Date", "today")
         habit_data = analysis.habit_data_in_selected_period(selected_date)[0]
@@ -230,7 +257,7 @@ elif page == "Analysis":
         else:
             st.warning("No record on the selected date!")
 
-    # Weekly View: data in the specific week
+    # Weekly View: records for a full week
     with tab4:
         selected_date_in_week = st.date_input("Choose a date of interest week", "today")
         first_day_of_week = selected_date_in_week - timedelta(
@@ -247,7 +274,7 @@ elif page == "Analysis":
         else:
             st.warning("No record in the selected week!")
 
-    # Month View: data in the specific month
+    # Month View: data for an entire month
     with tab5:
         years = list(range(now.year - 2, now.year + 3))
         selected_year = st.selectbox("Year", years, index=years.index(now.year))
