@@ -1,16 +1,15 @@
 <h1 align="center"> Habit Tracker App </h1>
 
 ## Introduction
-A personal habit tracker app based on Python.
-It helps users to create habits, log activities and track completion rate.
+This habit tracker app helps users to track their habits. By defining habits with specific periodicities (daily, weekly or monthly)  and recording activities, users can easily monitor the progress by viewing the detailed records and the analytical report.
 
 ## Features
-- **Habit Management:** Add new habits and delete unwanted habits. Support daily, weekly and monthly habits. <br>
-- **Activity Logging:** Check off habits and mark the status as "done", "skip" or "missed" at anytime. <br>
-- **Data Analytics:** Calculate the current streak, the longest streak and completion rate of habits. <br>
-- **Web UI:** Graphical user interface based on Streamlit makes the app intuitive and user friendly. <br>
-- **Data Storage:** Storage user habit data in SQLite for tracking and analysis. <br>
-- **Predefined Data:** About four weeks of predefined data can be loaded to familiarize users with the application. <br>
+- **Habit Management:** Add new habits and delete unwanted habits. Support daily, weekly and monthly habits. 
+- **Activity Logging:** Check off habits and mark the status as Done, Skip or Missed at any time.
+- **Data Analytics:** Calculate the current streak, the longest streak and completion rate of habits.
+- **Web UI:** Graphical user interface based on Streamlit makes the app intuitive and user friendly.
+- **Data Storage:** Store user data in SQLite for tracking and analysis.
+- **Predefined Data:** About four weeks of predefined data can be loaded to familiarize users with the application.
 
 ## Running the app locally
 **1. Install Python and Git if you don't have them**
@@ -40,21 +39,27 @@ streamlit run app.py
 
 ## Usage
 **1. Create a new habit** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;Users can add a new habit in the page "Add Habit". <br>
-&nbsp;&nbsp;&nbsp;&nbsp;After putting the habit name, the description and the frequency, users press "Submit" button to add the habit into the database.
+Users can add a new habit on the Add Habit page. After entering the habit name, description and frequency, click the Submit button to save the habit to the database.
+
+<img src="assets/Adding_a_New_Habit.png" alt="Fig 1: Adding a New Habit" width="500">
+<br><br>
 
 **2. Check off the habit** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;In the page "Check Off Habits", users can mark status of a habit. <br>
-&nbsp;&nbsp;&nbsp;&nbsp;There are three modes for the status: "Done!", "Skip.", and "Missed." <br>
-&nbsp;&nbsp;&nbsp;&nbsp;Habits can be check off at anytime, even at the time in the pass. <br>
-&nbsp;&nbsp;&nbsp;&nbsp;Press the button "Submit" to send the record to the database.
+On the Check Off Habits page, users can log their progress by selecting one of the three statuses: Done, Skip, and Missed. Habits can be checked off at any time, including for past dates. Press the Submit button to save the record to the database.
+
+<img src="assets/Checking-off_a_Habit.png" alt="Fig 2: Checking-off a Habit" width="500">
+<br><br>
 
 **3. View habit report and data analysis** <br>
-&nbsp;&nbsp;&nbsp;&nbsp;There are five tabs in the page "Analysis".
-- Overview: Highlights of all habits and the habits with the same frequency. <br>
-- Habit details: Details can event logs can be seen for the chosen habit. Users can also delete the habit in this tab. <br>
-- Day View: All records on the specific date are shown. <br>
-- Week View: All records in the specific week of the chosen date are displayed here. <br>
-- Month View: All records in the specific year and month are displayed in this tab. <br>
+There are five tabs on the Analysis page.
+- Overview: Provides a high-level summary, showing the habit ranking based on success rate and longest streak. 
+- Habit details: See the detailed data of a specific habit or delete the habit if users no longer need it. 
+- Day View: View activities on a specific day. 
+- Week View: See all records for a full week. 
+- Month View: View habit data for an entire month. 
 
-https://github.com/user-attachments/assets/ecd5dc93-b643-45f7-8e9e-fdfb67b1f750
+<img src="assets/Habit_Report_Overview.png" alt="Fig 3: Habit Report Overview" width="500">
+<br><br>
+
+## Demo
+https://github.com/user-attachments/assets/862a4b13-19c6-4d59-90f4-f742b67d82c2
