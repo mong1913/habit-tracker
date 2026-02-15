@@ -12,7 +12,7 @@ This habit tracker app helps users to track their habits. By defining habits wit
 - **Predefined Data:** About four weeks of predefined data can be loaded to familiarize users with the application.
 
 ## Running the app locally
-**1. Install Python and Git if you don't have them**
+**1. Install Python (3.11 or 3.12) and Git if you don't have them**
 
 **2. Clone the Repository**
 ```sh
@@ -21,34 +21,46 @@ git clone https://github.com/mong1913/habit-tracker.git
 
 **3. Navigate to the App Directory**
 
-**4. Create a Virtual Environment (Optional)**
+**4. Create a Virtual Environment (Recommended)**
 ```sh
-python -m venv venv
+# Create a virtual environment with the specified Python version:
+python3.12 -m venv venv
+# or
+python3.11 -m venv venv
+
+# Activate the Environment 
+# On macOS/Linux:
 source venv/bin/activate
+# On Windows:
+.\venv\Scripts\activate
 ```
 
 **5. Install dependencies**
 ```sh
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 **6. Run the Streamlit App**
 ```sh
-streamlit run app.py
+python -m streamlit run app.py
 ```
+
+**7. Exit the App** <br>
+Press Ctrl+C in the terminal window.
 
 ## Usage
 **1. Create a new habit** <br>
 Users can add a new habit on the Add Habit page. After entering the habit name, description and frequency, click the Submit button to save the habit to the database.
 
 <img src="assets/Adding_a_New_Habit.png" alt="Fig 1: Adding a New Habit" width="500">
-<br><br>
+<br>
 
 **2. Check off the habit** <br>
 On the Check Off Habits page, users can log their progress by selecting one of the three statuses: Done, Skip, and Missed. Habits can be checked off at any time, including for past dates. Press the Submit button to save the record to the database.
 
 <img src="assets/Checking-off_a_Habit.png" alt="Fig 2: Checking-off a Habit" width="500">
-<br><br>
+<br>
 
 **3. View habit report and data analysis** <br>
 There are five tabs on the Analysis page.
@@ -59,7 +71,7 @@ There are five tabs on the Analysis page.
 - Month View: View habit data for an entire month. 
 
 <img src="assets/Habit_Report_Overview.png" alt="Fig 3: Habit Report Overview" width="500">
-<br><br>
+<br>
 
 ## Demo
 https://github.com/user-attachments/assets/862a4b13-19c6-4d59-90f4-f742b67d82c2
