@@ -74,4 +74,4 @@ There are five tabs on the Analysis page.
 <br>
 
 ## Demo
-https://github.com/user-attachments/assets/862a4b13-19c6-4d59-90f4-f742b67d82c2
+https://github.com/user-attachments/assets/8e7231f3-5574-48d4-bd8c-3b27111a61d3
