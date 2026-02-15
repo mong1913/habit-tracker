@@ -112,7 +112,7 @@ elif page == "Checkoff":
     )
 
     if check_off_time == "Now":
-        time = now.strftime("%Y-%m-%d %H:%M")
+        time_str = now.strftime("%Y-%m-%d %H:%M")
 
     elif check_off_time == "Custom":
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -140,17 +140,25 @@ elif page == "Checkoff":
             minutes = list(range(0, 60))
             minute = st.selectbox("Minute", minutes, index=minutes.index(now.minute))
 
-        time = datetime(year, month, day, hour, minute).strftime("%Y-%m-%d %H:%M")
+        time_str = datetime(year, month, day, hour, minute).strftime("%Y-%m-%d %H:%M")
+    time_datetime = datetime.strptime(time_str, "%Y-%m-%d %H:%M")
 
     check_off_status = st.selectbox("Status:", ("Done!", "Skip.", "Missed."))
 
     if st.button("Submit"):
-        tracker.checkoff(
-            habit_name=habit_to_checkoff, date=time, status=check_off_status
-        )
-        st.success(
-            f"New status submitted: **{habit_to_checkoff}** at **{time}**: {check_off_status}"
-        )
+        habit = Habit(st.session_state.db_file, habit_to_checkoff)
+        start_date_datetime = datetime.strptime(habit.start_date, "%Y-%m-%d %H:%M")
+        if time_datetime < start_date_datetime:
+            st.warning("Please select a time after the habit's start date!")
+        elif time_datetime >= now:
+            st.warning("Please select a time before or equal to now!")
+        else:
+            tracker.checkoff(
+                habit_name=habit_to_checkoff, date=time_str, status=check_off_status
+            )
+            st.success(
+                f"New status submitted: **{habit_to_checkoff}** at **{time_str}**: {check_off_status}"
+            )
 
 # Analysis page
 elif page == "Analysis":
